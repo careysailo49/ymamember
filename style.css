@@ -44,3 +44,12 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     cursor: pointer;
     transition: all 0.15s ease-in-out;
 }
+
+/* Custom Textarea Adjustments */
+#branchManualContent {
+    resize: vertical;
+    min-height: 110px;
+}
+#branchManualContent:focus {
+    box-shadow: 0 4px 14px -2px rgba(59, 130, 246, 0.06);
+}
