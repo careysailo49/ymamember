@@ -1,71 +1,361 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Khuangpuilam YMA Member Directory</title>
-    
-    <!-- External Frameworks & Libraries -->
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
-    
-    <!-- Custom Stylesheet -->
+
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-slate-50 font-sans min-h-screen text-slate-800">
 
-    <!-- ==================== LOGIN PAGE ==================== -->
-    <div id="loginPage" class="flex items-center justify-center min-h-screen px-4">
-        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-100">
-            <div class="text-center mb-8">
-                <h1 class="text-2xl font-bold text-blue-600">Khuangpuilam YMA</h1>
-                <p class="text-slate-500 text-sm mt-1">Member Ziahluhna leh Enna</p>
+<body class="bg-slate-50 font-sans min-h-screen text-slate-800 overflow-x-hidden">
+
+    <header
+        class="bg-white border-b border-slate-200 sticky top-0 z-40 px-6 py-4 flex justify-between items-center shadow-sm">
+        <div>
+            <h1 class="text-xl font-bold text-slate-900">Khuangpuilam YMA</h1>
+            <div class="flex items-center gap-2 mt-0.5">
+                <span class="text-xs text-slate-500">Member Chhinchhiahna Portal</span>
+                <span id="roleBadge"
+                    class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">PUBLIC
+                    VIEW</span>
             </div>
-            
+        </div>
+        <div class="flex items-center gap-3">
+            <button id="openLoginBtn"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition duration-150 cursor-pointer shadow-sm">
+                Log In
+            </button>
+            <button id="logoutBtn"
+                class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition duration-150 cursor-pointer hidden">
+                Logout
+            </button>
+        </div>
+    </header>
+
+    <div id="loginSidebar"
+        class="fixed inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl z-50 transform translate-x-full border-l border-slate-200 flex flex-col justify-between">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-8 border-b border-slate-100 pb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900">Sign In Portal</h3>
+                    <p class="text-slate-500 text-xs">Access management features</p>
+                </div>
+                <button id="closeLoginBtn"
+                    class="text-slate-400 hover:text-slate-600 text-2xl font-semibold p-1">&times;</button>
+            </div>
+
             <form id="loginForm" class="space-y-5">
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Username</label>
-                    <input type="text" id="username" required class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="username" required
+                        class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
-                    <input type="password" id="password" required class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="password" id="password" required
+                        class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-                <div id="loginError" class="text-red-500 text-sm hidden bg-red-50 p-2.5 rounded-lg border border-red-100"></div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition duration-200 shadow-sm cursor-pointer">
+                <div id="loginError"
+                    class="text-red-500 text-sm hidden bg-red-50 p-2.5 rounded-lg border border-red-100"></div>
+                <button type="submit"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition duration-200 shadow-sm cursor-pointer">
                     Log In
                 </button>
             </form>
         </div>
+        <div class="p-6 bg-slate-50 text-center text-xs text-slate-400 border-t border-slate-100">
+            Khuangpuilam YMA &copy; 2026
+        </div>
     </div>
+    <div id="drawerOverlay"
+        class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 hidden transition-opacity duration-200"></div>
 
-    <!-- ==================== MAIN DASHBOARD ==================== -->
-    <div id="dashboardPage" class="hidden">
-        <!-- Navigation Header -->
-        <header class="bg-white border-b border-slate-200 sticky top-0 z-10 px-6 py-4 flex justify-between items-center shadow-sm">
-            <div>
-                <h1 class="text-xl font-bold text-slate-900">Khuangpuilam YMA Member Chhinchhiahna</h1>
-                <span id="roleBadge" class="text-xs font-semibold px-2.5 py-0.5 rounded-full mt-1 inline-block"></span>
+    <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-10">
+
+        <section id="bearersSection" class="bg-white p-6 sm:p-8 rounded-2xl shadow-xs border border-slate-200">
+            <div
+                class="flex flex-col md:flex-row md:items-end justify-between mb-8 pb-4 border-b border-slate-100 gap-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-900 flex items-center gap-2">
+                        <span class="w-3.5 h-3.5 rounded-full bg-blue-600"></span> YMA Office Bearers Ho
+                    </h2>
+                    <p class="text-slate-500 text-sm mt-0.5">Khuangpuilam Branch hruaitu thlante thlalak leh nihna</p>
+                </div>
+
+                <div class="flex items-center gap-2 min-w-[140px]">
+                    <span class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Archives:</span>
+                    <select id="bearerYearSelect"
+                        class="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-medium focus:ring-2 focus:ring-blue-500 bg-slate-50 cursor-pointer max-h-40">
+                    </select>
+                </div>
             </div>
-            <button id="logoutBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition duration-150 cursor-pointer">
-                Logout
-            </button>
-        </header>
 
-        <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
-            
-            <!-- SECTION 1: DATA ENTRY FORM -->
-            <section class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h2 class="text-lg font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> Member Ziah Luhna
-                </h2>
-                
-                <form id="dataEntryForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Section</label>
-                        <select id="section" required class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white">
-                            <option value="">Section Thlang Rawh</option>
+            <div id="bearersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+            </div>
+        </section>
+
+        <section id="bearerEntrySection"
+            class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hidden space-y-6">
+            <h2
+                class="text-lg font-bold text-slate-900 pb-2 border-b border-slate-100 flex items-center gap-2 text-rose-700">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-600"></span> Office Bearer Thar Dah Luhna (Admin Only)
+            </h2>
+
+            <form id="bearerForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-end">
+                <input type="hidden" id="editBearerId" value="">
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Kum
+                        (Year)</label>
+                    <select id="bearerYear" required
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white">
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Hming
+                        Pum</label>
+                    <input type="text" id="bearerName" required placeholder="Hruaitu Hming"
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Nihna
+                        (Role)</label>
+                    <select id="bearerRole" required
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="President">President</option>
+                        <option value="Vice President">Vice President</option>
+                        <option value="Secretary">Secretary</option>
+                        <option value="Asst. Secretary">Asst. Secretary</option>
+                        <option value="Treasurer">Treasurer</option>
+                        <option value="Fin. Secretary">Fin. Secretary</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Thlalak
+                        Thlang Rawh (Photo)</label>
+                    <input type="file" id="bearerImage" accept="image/*"
+                        class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white">
+                    <p id="editPhotoNote" class="text-[10px] text-slate-400 mt-1 hidden">*Thlalak thar thlak i duh loh
+                        chuan khawih loh tur.</p>
+                </div>
+
+                <!-- NEW ALERT BANNER PORTAL -->
+                <div id="bearerAlertBox"
+                    class="md:col-span-2 lg:col-span-4 hidden text-xs font-semibold p-3 rounded-lg border transition-all duration-200">
+                </div>
+
+                <div class="md:col-span-2 lg:col-span-4 flex items-center gap-3 pt-1">
+                    <button type="submit" id="bearerSubmitBtn"
+                        class="bg-rose-600 hover:bg-rose-700 text-white font-medium px-6 py-2.5 rounded-lg transition duration-150 shadow-sm cursor-pointer text-sm w-full sm:w-auto">
+                        Office Bearer Submit Rawh
+                    </button>
+                    <button type="button" id="cancelBearerEditBtn"
+                        class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium px-4 py-2.5 rounded-lg transition duration-150 text-sm hidden">
+                        Cancel Edit
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-6 pt-4 border-t border-slate-100">
+                <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-slate-400"></span> System Bearer Logs (Edit / Delete Dashboard)
+                </h3>
+                <div class="overflow-x-auto border border-slate-200 rounded-lg bg-slate-50/50">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr
+                                class="bg-slate-100 text-slate-600 font-semibold uppercase tracking-wider border-b border-slate-200">
+                                <th class="py-2.5 px-4">Kum</th>
+                                <th class="py-2.5 px-4">Thlalak</th>
+                                <th class="py-2.5 px-4">Hming</th>
+                                <th class="py-2.5 px-4">Nihna (Role)</th>
+                                <th class="py-2.5 px-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminBearerLogsTableBody" class="divide-y divide-slate-100 text-slate-700">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="entryFormSection" class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hidden">
+            <h2 class="text-lg font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
+                <span id="memberFormTitleNode" class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> Member Ziah Luhna
+            </h2>
+
+            <form id="dataEntryForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <input type="hidden" id="editMemberId" value="">
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Kum
+                        (Year)</label>
+                    <select id="memberEntryYear" required
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white">
+                    </select>
+                </div>
+
+                <div>
+                    <label
+                        class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Section</label>
+                    <select id="section" required
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="">Section Thlang Rawh</option>
+                        <option value="Chawngbawla">Chawngbawla</option>
+                        <option value="Vanapa">Vanapa</option>
+                        <option value="Khuangchera">Khuangchera</option>
+                        <option value="Taitesena">Taitesena</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Head of
+                        Family</label>
+                    <input type="text" id="headOfFamily" required placeholder="Chhungkaw Otu Hming"
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="col-span-1">
+                        <label
+                            class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Inlaichinna</label>
+                        <select id="relation" required
+                            class="w-full px-2 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white">
+                            <option value="S/o">S/o</option>
+                            <option value="D/o">D/o</option>
+                            <option value="H/o">H/o</option>
+                            <option value="W/o">W/o</option>
+                            <option value="C/o">C/o</option>
+                        </select>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Chhungte
+                            Hming</label>
+                        <input type="text" id="chhungte" required placeholder="Parent/Spouse Name"
+                            class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div
+                    class="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2 col-span-1 md:col-span-2 lg:col-span-2">
+                    <div class="flex justify-between items-center border-b pb-1.5 border-slate-200">
+                        <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">YMA Member Te & Pian
+                            Kum</span>
+                        <button type="button" id="addMemberRowBtn"
+                            class="bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 text-[11px] font-bold px-2 py-1 rounded transition cursor-pointer">+
+                            Belh</button>
+                    </div>
+                    <div id="dynamicMembersContainer" class="space-y-1.5 max-h-36 overflow-y-auto pr-0.5">
+                        <div
+                            class="grid grid-cols-12 gap-2 items-center member-dynamic-row bg-white p-1.5 rounded border border-slate-100 shadow-2xs">
+                            <div class="col-span-7">
+                                <input type="text" required placeholder="Member Hming"
+                                    class="w-full px-2 py-1 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 member-name-field">
+                            </div>
+                            <div class="col-span-4">
+                                <input type="date" required
+                                    class="w-full px-1.5 py-1 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 member-dob-field">
+                            </div>
+                            <div class="col-span-1 text-center">
+                                <button type="button"
+                                    class="text-slate-300 text-sm font-bold remove-row-btn transition cursor-not-allowed"
+                                    disabled>&times;</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Member
+                        Fee</label>
+                    <select id="memberFee" required
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="Pe">Pe</option>
+                        <option value="Pe Lo">Pe Lo</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Endowment
+                        Fund</label>
+                    <select id="endowmentFund" required
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="Pe">Pe</option>
+                        <option value="Pe Lo">Pe Lo</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Chhiatni
+                        Fund</label>
+                    <select id="chhiatniFund" required
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="Pe">Pe</option>
+                        <option value="Pe Lo">Pe Lo</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Tlangau
+                        Hlawh</label>
+                    <select id="tlangauHlawh" required
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="Pe">Pe</option>
+                        <option value="Pe Lo">Pe Lo</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Daifim
+                        Man</label>
+                    <select id="daifimMan" required
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="Pe">Pe</option>
+                        <option value="Pe Lo">Pe Lo</option>
+                    </select>
+                </div>
+
+                <div class="col-span-1 md:col-span-2 lg:col-span-3 flex items-center gap-2 pt-2">
+                    <button type="submit" id="memberSubmitBtn"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-lg transition duration-150 shadow-sm cursor-pointer text-sm">
+                        Submit Member Entry
+                    </button>
+                    <button type="button" id="cancelMemberEditBtn"
+                        class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium px-4 py-2 rounded-lg transition duration-150 text-sm hidden">
+                        Cancel Edit
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div
+                class="p-6 border-b border-slate-100 flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center bg-slate-50/50">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Member Enna
+                    </h2>
+                    <p id="tableViewStatus" class="text-xs text-slate-500 mt-0.5">Loading data directly from database...
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                    <div class="w-full sm:w-36">
+                        <select id="memberYearFilter"
+                            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-medium">
+                        </select>
+                    </div>
+
+                    <div class="w-full sm:w-44">
+                        <select id="filterSection"
+                            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            <option value="">Section Zawng Zawng</option>
                             <option value="Chawngbawla">Chawngbawla</option>
                             <option value="Vanapa">Vanapa</option>
                             <option value="Khuangchera">Khuangchera</option>
@@ -73,126 +363,55 @@
                         </select>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Hming</label>
-                        <input type="text" id="hming" required placeholder="Hming Pum Ziah Tur" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <div class="relative flex-1 sm:flex-initial">
+                        <input type="text" id="searchName" placeholder="Search Head of Family..."
+                            class="w-full sm:w-64 pl-4 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                     </div>
 
-                    <div class="grid grid-cols-3 gap-2">
-                        <div class="col-span-1">
-                            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Inlaichinna</label>
-                            <select id="relation" required class="w-full px-2 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white">
-                                <option value="S/o">S/o</option>
-                                <option value="D/o">D/o</option>
-                                <option value="H/o">H/o</option>
-                                <option value="W/o">W/o</option>
-                                <option value="C/o">C/o</option>
-                            </select>
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Chhungte Hming</label>
-                            <input type="text" id="chhungte" required placeholder="Parent/Spouse Name" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Pian Kum</label>
-                        <input type="date" id="pianKum" required class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Member Fee</label>
-                        <select id="memberFee" required class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white">
-                            <option value="Pe">Pe</option>
-                            <option value="Pe Lo">Pe Lo</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Endowment Fund</label>
-                        <select id="endowmentFund" required class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white">
-                            <option value="Pe">Pe</option>
-                            <option value="Pe Lo">Pe Lo</option>
-                        </select>
-                    </div>
-
-                    <div class="md:col-span-2 lg:col-span-3 pt-2">
-                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-lg transition duration-150 shadow-sm cursor-pointer">
-                            Submit
+                    <div id="adminControls" class="hidden">
+                        <button id="extractPdfBtn"
+                            class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition duration-150 shadow-sm cursor-pointer">
+                            Extract to PDF
                         </button>
                     </div>
-                </form>
-            </section>
-
-            <!-- SECTION 2: DATA DISPLAY SECTION -->
-            <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="p-6 border-b border-slate-100 flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center bg-slate-50/50">
-                    <div>
-                        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Member Enna
-                        </h2>
-                        <p id="tableViewStatus" class="text-xs text-slate-500 mt-0.5">Loading data directly from database...</p>
-                    </div>
-                    
-                    <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                        <!-- Dropdown Filter for Section -->
-                        <div class="w-full sm:w-44">
-                            <select id="filterSection" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                                <option value="">Section Zawng Zawng</option>
-                                <option value="Chawngbawla">Chawngbawla</option>
-                                <option value="Vanapa">Vanapa</option>
-                                <option value="Khuangchera">Khuangchera</option>
-                                <option value="Taitesena">Taitesena</option>
-                            </select>
-                        </div>
-
-                        <!-- Search Box -->
-                        <div class="relative flex-1 sm:flex-initial">
-                            <input type="text" id="searchName" placeholder="Search Hming (Name)..." class="w-full sm:w-64 pl-4 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                        </div>
-                        
-                        <div id="adminControls" class="hidden">
-                            <button id="extractPdfBtn" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition duration-150 shadow-sm cursor-pointer">
-                                Extract to PDF
-                            </button>
-                        </div>
-                    </div>
                 </div>
+            </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-100 text-slate-600 text-xs font-semibold uppercase tracking-wider border-b border-slate-200">
-                                <th class="py-3 px-6">Section Awmna</th>
-                                <th class="py-3 px-6">Hming Pum</th>
-                                <th class="py-3 px-6">Chhungte </th>
-                                <th class="py-3 px-6">Pian Kum </th>
-                                <th class="py-3 px-6">Member Fee</th>
-                                <th class="py-3 px-6">Endowment Fund</th>
-                                <th id="thAction" class="py-3 px-6 text-right hidden">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="memberTableBody" class="divide-y divide-slate-100 text-sm text-slate-700">
-                            <!-- Populated Dynamically via Javascript -->
-                        </tbody>
-                    </table>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr
+                            class="bg-slate-100 text-slate-600 text-[11px] font-semibold uppercase tracking-wider border-b border-slate-200">
+                            <th class="py-3 px-4">Section</th>
+                            <th class="py-3 px-4">Head of Family</th>
+                            <th class="py-3 px-4">Chhungte</th>
+                            <th class="py-3 px-4">YMA Member Te (Pian Kum)</th>
+                            <th class="py-3 px-2 text-center">Fee</th>
+                            <th class="py-3 px-2 text-center">Endow.</th>
+                            <th class="py-3 px-2 text-center">Chhiatni</th>
+                            <th class="py-3 px-2 text-center">Tlangau</th>
+                            <th class="py-3 px-2 text-center">Daifim</th>
+                            <th id="thAction" class="py-3 px-4 text-right hidden">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="memberTableBody" class="divide-y divide-slate-100 text-[11px] text-slate-700">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                <div class="text-xs text-slate-500 font-medium">
+                    Showing <span id="pageRangeText" class="font-semibold text-slate-700">0-0</span> of <span
+                        id="totalRecordsText" class="font-semibold text-slate-700">0</span> nodes
                 </div>
-
-                <!-- NEW COMPONENT: Dynamic Pagination Control Footer Bar -->
-                <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-                    <div class="text-xs text-slate-500 font-medium">
-                        Showing <span id="pageRangeText" class="font-semibold text-slate-700">0-0</span> of <span id="totalRecordsText" class="font-semibold text-slate-700">0</span> members
-                    </div>
-                    <div id="paginationButtons" class="flex items-center gap-1">
-                        <!-- Dynamic page list targets will build here -->
-                    </div>
+                <div id="paginationButtons" class="flex items-center gap-1">
                 </div>
-            </section>
+            </div>
+        </section>
 
-        </main>
-    </div>
+    </main>
 
-    <!-- Custom Logic Module Script -->
     <script type="module" src="script.js"></script>
 </body>
+
 </html>
