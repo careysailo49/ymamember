@@ -16,12 +16,17 @@
 <body class="bg-slate-50 font-sans min-h-screen text-slate-800 overflow-x-hidden">
 
     <!-- Centered & Scaled Public View Header Section -->
+    <!-- Centered & Scaled Public View Header Section -->
+    <!-- Centered & Scaled Public View Header Section -->
     <header
-        class="bg-white border-b border-slate-200 sticky top-0 z-40 px-6 py-6 flex flex-col md:flex-row justify-between items-center gap-4 shadow-sm text-center md:text-left">
+        class="bg-white border-b border-slate-200 sticky top-0 z-40 px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 shadow-sm text-center md:text-left">
         <!-- Spacing hack element to align content layout cleanly on desktop panels -->
         <div class="hidden md:block w-32"></div>
 
         <div class="flex flex-col items-center justify-center flex-1">
+            <!-- YMA Logo placed centered directly above the heading title text -->
+            <img src="logo.jpg" alt="Khuangpuilam YMA Logo" class="h-16 w-16 md:h-20 md:w-20 object-contain rounded-full border border-slate-100 shadow-xs mb-3">
+            
             <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Khuangpuilam YMA</h1>
             <div class="flex items-center justify-center gap-2 mt-1.5">
                 <span class="text-sm md:text-base text-slate-500 font-medium">Member Chhinchhiahna Portal</span>
@@ -238,11 +243,22 @@
                     </select>
                 </div>
 
+                <!--Head of Family block and update it to match this: -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Head of
                         Family</label>
-                    <input type="text" id="headOfFamily" required placeholder="Chhungkaw Otu Hming"
+                    <input type="text" id="headOfFamily" required placeholder="Chhungkaw Hotu Hming"
                         class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- NEWLY ADDED: Contact No field right after Head of Family -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Contact
+                        No</label>
+                    <input type="text" id="headContactNo" required placeholder="10 digit Phone Number" maxlength="10"
+                        inputmode="numeric"
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                 </div>
 
                 <div class="grid grid-cols-3 gap-2">
@@ -273,18 +289,26 @@
                             Kum</span>
                         <button type="button" id="addMemberRowBtn"
                             class="bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 text-[11px] font-bold px-2 py-1 rounded transition cursor-pointer">+
-                            Belh</button>
+                            Belh Na</button>
                     </div>
+                    <!-- Inside the form structure, replace the template layout for dynamic rows to include phone numbers -->
                     <div id="dynamicMembersContainer" class="space-y-1.5 max-h-36 overflow-y-auto pr-0.5">
                         <div
                             class="grid grid-cols-12 gap-2 items-center member-dynamic-row bg-white p-1.5 rounded border border-slate-100 shadow-2xs">
-                            <div class="col-span-7">
+                            <div class="col-span-4">
                                 <input type="text" required placeholder="Member Hming"
                                     class="w-full px-2 py-1 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 member-name-field">
                             </div>
-                            <div class="col-span-4">
+                            <div class="col-span-3">
                                 <input type="date" required
                                     class="w-full px-1.5 py-1 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 member-dob-field">
+                            </div>
+                            <!-- NEWLY ADDED: Member contact column space -->
+                            <div class="col-span-4">
+                                <input type="text" required placeholder="Contact No (10-digit)" maxlength="10"
+                                    inputmode="numeric"
+                                    class="w-full px-2 py-1 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 member-phone-field"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             </div>
                             <div class="col-span-1 text-center">
                                 <button type="button"
@@ -348,7 +372,7 @@
                 <div class="col-span-1 md:col-span-2 lg:col-span-3 flex items-center gap-2 pt-2">
                     <button type="submit" id="memberSubmitBtn"
                         class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-lg transition duration-150 shadow-sm cursor-pointer text-sm">
-                        Submit Member Entry
+                        Submit Rawh Le
                     </button>
                     <button type="button" id="cancelMemberEditBtn"
                         class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium px-4 py-2 rounded-lg transition duration-150 text-sm hidden">
@@ -365,7 +389,7 @@
                     <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
                         <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Member Enna
                     </h2>
-                    <p id="tableViewStatus" class="text-xs text-slate-500 mt-0.5">Loading data directly from database...
+                    <p id="tableViewStatus" class="text-xs text-slate-500 mt-0.5">Database atangin member lak mek a ni e.....
                     </p>
                 </div>
 
@@ -409,7 +433,8 @@
                             <th class="py-3 px-4">Section</th>
                             <th class="py-3 px-4">Head of Family</th>
                             <th class="py-3 px-4">Chhungte</th>
-                            <th class="py-3 px-4">YMA Member Te (Pian Kum)</th>
+                            <th class="py-3 px-4">YMA Member Te (Pian Kum) [Contact]</th>
+                            <!-- Header update description context -->
                             <th class="py-3 px-2 text-center">Fee</th>
                             <th class="py-3 px-2 text-center">Endow.</th>
                             <th class="py-3 px-2 text-center">Chhiatni</th>

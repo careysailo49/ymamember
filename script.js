@@ -144,15 +144,20 @@ function setupDynamicMatrixListeners() {
     });
 }
 
-function appendMatrixRow(nameVal = "", dobVal = "") {
+function appendMatrixRow(nameVal = "", dobVal = "", phoneVal = "") {
     const row = document.createElement('div');
     row.className = "grid grid-cols-12 gap-2 items-center member-dynamic-row bg-white p-1.5 rounded border border-slate-100 shadow-2xs";
     row.innerHTML = `
-        <div class="col-span-7">
+        <div class="col-span-4">
             <input type="text" required value="${nameVal}" placeholder="Member Hming" class="w-full px-2 py-1 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 member-name-field">
         </div>
-        <div class="col-span-4">
+        <div class="col-span-3">
             <input type="date" required value="${dobVal}" class="w-full px-1.5 py-1 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 member-dob-field">
+        </div>
+        <div class="col-span-4">
+            <input type="text" required value="${phoneVal}" placeholder="Contact No" maxlength="10" inputmode="numeric" 
+                class="w-full px-2 py-1 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 member-phone-field"
+                oninput="this.value = this.value.replace(/[^0-9]/g, '')">
         </div>
         <div class="col-span-1 text-center">
             <button type="button" class="text-slate-400 text-sm font-bold remove-row-btn transition cursor-pointer">&times;</button>
@@ -466,6 +471,7 @@ document.getElementById('dataEntryForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const selectedEntryYear = memberEntryYearSelect.value;
     const headOfFamilyValue = document.getElementById('headOfFamily').value.trim();
+    const headContactNoValue = document.getElementById('headContactNo').value.trim();
     const chhungteValue = document.getElementById('chhungte').value.trim();
     const editMemberId = editMemberIdInput.value;
     const alphaSpaceRegex = /^[A-Za-z\s]+$/;
@@ -475,25 +481,39 @@ document.getElementById('dataEntryForm').addEventListener('submit', (e) => {
         return;
     }
 
+    if (headContactNoValue.length !== 10) {
+        alert("Head of Family contact number hi digit 10 a ni tur a ni.");
+        return;
+    }
+
     const memberRows = dynamicMembersContainer.querySelectorAll('.member-dynamic-row');
     const ymaMembersArray = [];
     let matrixValid = true;
+    let phoneValid = true;
 
     memberRows.forEach(row => {
         const nameVal = row.querySelector('.member-name-field').value.trim();
         const dobVal = row.querySelector('.member-dob-field').value;
+        const phoneVal = row.querySelector('.member-phone-field').value.trim();
 
         if (nameVal && !alphaSpaceRegex.test(nameVal)) {
             matrixValid = false;
         }
+        if (phoneVal && phoneVal.length !== 10) {
+            phoneValid = false;
+        }
 
-        if (nameVal && dobVal) {
-            ymaMembersArray.push({ hming: nameVal, pianKum: dobVal });
+        if (nameVal && dobVal && phoneVal) {
+            ymaMembersArray.push({ hming: nameVal, pianKum: dobVal, contactNo: phoneVal });
         }
     });
 
     if (!matrixValid) {
         alert("YMA Member hming ziahnaah hian Alphabet leh Space chiah hman phal a ni.");
+        return;
+    }
+    if (!phoneValid) {
+        alert("YMA Member contact number te hi digit 10 thlap chhuah luh vek tur a ni.");
         return;
     }
 
@@ -505,6 +525,7 @@ document.getElementById('dataEntryForm').addEventListener('submit', (e) => {
     const record = {
         section: document.getElementById('section').value,
         headOfFamily: headOfFamilyValue,
+        headContactNo: headContactNoValue,
         relationType: document.getElementById('relation').value,
         chhungte: chhungteValue,
         ymaMembers: ymaMembersArray,
@@ -559,11 +580,11 @@ function resetMemberFormState() {
 cancelMemberEditBtn.addEventListener('click', resetMemberFormState);
 
 function listenToMembersDatabase(year) {
-    tableViewStatus.textContent = `Loading data for year ${year}...`;
+    tableViewStatus.textContent = `Members te lak mek ani e... ${year}...`;
     const currentYearDbRef = ref(db, `yma_members/${year}`);
     onValue(currentYearDbRef, (snapshot) => {
         allMembersData = snapshot.val() || {};
-        tableViewStatus.textContent = `Database active (Year: ${year})`;
+        tableViewStatus.textContent = `(Year: ${year})`;
         processAndRenderData();
     });
 }
@@ -623,14 +644,14 @@ function renderTableRows(list) {
         let membersInlineList = "";
         if (item.ymaMembers && Array.isArray(item.ymaMembers)) {
             membersInlineList = item.ymaMembers.map(m => {
-                const innerDob = m.pianKum ? new Date(m.pianKum).toLocaleDateString('en-GB') : '';
-                return `<div class="bg-slate-100/80 px-2 py-0.5 rounded text-[11px] font-medium border border-slate-200/50 inline-block m-0.5">${m.hming} <span class="text-slate-400 font-normal">(${innerDob})</span></div>`;
+                const innerDob = m.pianKum ? m.pianKum.split('-').reverse().join('/') : '';
+                return `<div class="bg-slate-100/80 px-2 py-0.5 rounded text-[11px] font-medium border border-slate-200/50 inline-block m-0.5">${m.hming} <span class="text-slate-400 font-normal">(${innerDob})</span> <span class="text-blue-600 font-semibold">[ph: ${m.contactNo || 'N/A'}]</span></div>`;
             }).join(' ');
         }
 
         tr.innerHTML = `
             <td class="py-3 px-4 font-bold text-slate-900">${item.section}</td>
-            <td class="py-3 px-4 font-semibold text-slate-800">${item.headOfFamily || 'N/A'}</td>
+            <td class="py-3 px-4 font-semibold text-slate-800">${item.headOfFamily || 'N/A'} <br/><span class="text-slate-400 font-normal text-[10px]">${item.headContactNo || ''}</span></td>
             <td class="py-3 px-4 text-slate-500"><span class="text-[10px] font-bold bg-slate-200 px-1 py-0.2 rounded mr-1">${item.relationType || ''}</span>${item.chhungte || ''}</td>
             <td class="py-3 px-4 max-w-xs">${membersInlineList || '<span class="italic text-slate-400">No members listed</span>'}</td>
             <td class="py-3 px-2 text-center"><span class="px-1.5 py-0.5 font-bold rounded ${item.memberFee === 'Pe' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}">${item.memberFee || 'Pe Lo'}</span></td>
@@ -673,6 +694,7 @@ memberTableBody.addEventListener('click', (e) => {
             memberEntryYearSelect.value = memberYearFilter.value;
             document.getElementById('section').value = record.section || "";
             document.getElementById('headOfFamily').value = record.headOfFamily || "";
+            document.getElementById('headContactNo').value = record.headContactNo || "";
             document.getElementById('relation').value = record.relationType || "S/o";
             document.getElementById('chhungte').value = record.chhungte || "";
             document.getElementById('memberFee').value = record.memberFee || "Pe Lo";
@@ -684,7 +706,7 @@ memberTableBody.addEventListener('click', (e) => {
             dynamicMembersContainer.innerHTML = "";
             if (record.ymaMembers && Array.isArray(record.ymaMembers)) {
                 record.ymaMembers.forEach(m => {
-                    appendMatrixRow(m.hming, m.pianKum);
+                    appendMatrixRow(m.hming, m.pianKum, m.contactNo || "");
                 });
             } else {
                 resetMatrixToDefault();
@@ -727,13 +749,13 @@ extractPdfBtn.addEventListener('click', () => {
             if (item.ymaMembers && Array.isArray(item.ymaMembers)) {
                 nestedMembersStr = item.ymaMembers.map(m => {
                     const cleanDob = m.pianKum ? m.pianKum.split('-').reverse().join('/') : '';
-                    return `${m.hming} (${cleanDob})`;
+                    return `${m.hming} (${cleanDob}) [ph: ${m.contactNo || 'N/A'}]`;
                 }).join('\n');
             }
 
             return [
                 item.section || '',
-                item.headOfFamily || '',
+                `${item.headOfFamily || ''} ${item.headContactNo ? '\n(' + item.headContactNo + ')' : ''}`,
                 `(${item.relationType || ''}) ${item.chhungte || ''}`,
                 nestedMembersStr,
                 item.memberFee || 'Pe Lo',
