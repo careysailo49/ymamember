@@ -604,10 +604,20 @@ function processAndRenderData() {
     }));
 
     membersList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-    filteredListArray = membersList.filter(item => {
-        const matchHead = item.headOfFamily ? item.headOfFamily.toLowerCase().includes(searchTerm) : false;
-        return matchHead && (sectionTerm === "" || item.section === sectionTerm);
-    });
+    // Locate this block inside processAndRenderData() in script.js and update it:
+
+filteredListArray = membersList.filter(item => {
+    // Check if the search term matches the Head of Family
+    const matchHead = item.headOfFamily ? item.headOfFamily.toLowerCase().includes(searchTerm) : false;
+    
+    // Check if the search term matches any member name in the sub-array
+    const matchMembers = item.ymaMembers && Array.isArray(item.ymaMembers)
+        ? item.ymaMembers.some(m => m.hming && m.hming.toLowerCase().includes(searchTerm))
+        : false;
+
+    // Return true if either the Head or any Member matches, and the section matches the filter
+    return (matchHead || matchMembers) && (sectionTerm === "" || item.section === sectionTerm);
+});
 
     const totalRecords = filteredListArray.length;
     const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
